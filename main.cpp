@@ -1,59 +1,85 @@
 #include <iostream>
+#include <exception>
+#include <cmath>
+#include <limits>
+#include <new> 
+
 using namespace std;
 
-void check0(int x){
-	if(x==0) throw(x);
+
+class InputFailException : public exception {
+public:
+    virtual const char* what() const throw() {
+        return "Incorrect numbers"; 
+    }
+};
+
+class Div0Exception : public exception {
+public:
+    virtual const char* what() const throw() {
+        return "Divided by zero";
+    }
+};
+
+void checkDivisor(int y) {
+    if (y == 0) throw Div0Exception();
 }
 
-int main(){
-	int x,y,a;
-	double d;
-do{
-	a=0;
-try{
-	int i;
-	double* myarray;
-	for(i=0; i<10000000; i++){
-		cout<<"Allocating memory..."<<i<<endl;
-		myarray = new double(500000000);
-	}
+int main() {
+    int x, y;
+    double d;
+    bool retry = true;
 
-	cout<<"Enter 2 numbers";
-	cin>>x>>y;
+    while (retry) {
+        try {
+            cout << "Enter 2 numbers: ";
+            
+           
+            if (!(cin >> x >> y)) {
+                throw InputFailException();
+            }
 
-	if(cin.fail()){
-		throw("Incorrect type entered");
+         
+            if (abs(x) > 1000 || abs(y) > 1000) {
+                throw "Value out of range";
+            }
 
-	}
-	if(abs(x)>1000 ||abs(y)>1000){
-		throw("Value out of range");
-	
-	}
-	check0(y);
-	if (y==0) {
-		throw("Error divide by zero");
+            checkDivisor(y);
 
-	}
+            
+            d = (double)x / y;
+            cout << "The result is " << d << endl;
+            
+          
+            for (int i = 0; i < 100; i++) {
+                cout << "Allocating memory .... " << i << endl;
+                
+                double* myarray = new double[999999999999999]; 
+            }
 
-	/*normal code*/
-	d=(double) x/y;
-	cout<< "The result is" <<d<<endl;
-}
-catch(const char* error){
-	cerr<<error<<endl;
-	a=1;
-	cin.clear();
-	cin.ignore(50, '\n');
-}
-catch(int e){
-	switch(e){
-		case 101: cerr<<"Incorrect numbers "<<endl; break;
-		case 0: cerr<<"Divided by zero"<<endl; break;
-	}
-}
-catch(...){
-	cout<<"Memory leak!!"<<endl;
-}
-}while(a);
-	return 0;
+            retry = false; 
+
+        } 
+        catch (const InputFailException& e) {
+            cerr << e.what() << endl;
+            cin.clear(); 
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+        } 
+        catch (const Div0Exception& e) {
+            cerr << e.what() << endl;
+        }
+        catch (const char* msg) {
+            cerr << msg << endl; 
+        } 
+        catch (const bad_alloc& e) {
+           
+            cerr << e.what() << endl;
+            retry = false; 
+        }
+        catch (const exception& e) {
+            cerr << e.what() << endl;
+        }
+    }
+
+    return 0;
 }
