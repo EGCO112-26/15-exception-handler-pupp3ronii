@@ -22,7 +22,7 @@ class input_fail:public exception{
 class range1000:public exception{
 	public:
 	virtual const char* what() const throw(){
-		return "Value out of range (-10000 to 10000)";
+		return "Value out of range (-10000 to 1000)";
 	}
 };
 
